@@ -1,0 +1,104 @@
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+    id 'maven-publish'
+}
+
+ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
+
+android {
+    namespace 'com.testpub.mymathlib'
+    compileSdk 34
+
+    defaultConfig {
+        minSdk 28
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
+            withJavadocJar()
+        }
+    }
+}
+
+publishing {
+    repositories {
+        maven {
+            def releaseRepo = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+            def snapshotRepo = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+
+            name = "OSSRH"
+            url = isReleaseVersion ? releaseRepo : snapshotRepo
+
+            credentials {
+                username = findProperty("ossrhUsername") ?: System.getenv("OSSRH_USERNAME")
+                password = findProperty("ossrhPassword") ?: System.getenv("OSSRH_PASSWORD")
+            }
+        }
+    }
+
+//    publications {
+//        mavenJava(MavenPublication) {
+//            from components.java
+//
+//            pom {
+//                groupId = 'io.github.pavel-patrusov'
+//                name = project.name
+//                description = 'My test math lib.'
+//                url = 'https://github.com/botscripter/awesome-project'
+//                packaging = 'jar' // jar is the default, but still set it to make it clear
+//
+//                // Your chosen license
+//                // Use https://choosealicense.com/ to decide, if you need help.
+//                licenses {
+//                    license {
+//                        name = 'GNU General Public License v3.0'
+//                        url = 'https://choosealicense.com/licenses/gpl-3.0/'
+//                    }
+//                }
+//
+//                scm {
+//                    url = 'https://github.com/botscripter/awesome-project'
+//                    connection = 'scm:git://github.com:botscripter/awesome-project.git'
+//                    developerConnection = 'scm:git://github.com:botscripter/awesome-project.git'
+//                }
+//
+//                developers {
+//                    developer {
+//                        id = 'botscripter'
+//                        name = 'Nikola Stanković'
+//                        email = 'this@botscripter.io'
+//                        organizationUrl = 'https://botscripter.io/'
+//                    }
+//                }
+//            }
+//        }
+//    }
+}
+
+dependencies {
+
+    implementation 'androidx.core:core-ktx:1.12.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+}
